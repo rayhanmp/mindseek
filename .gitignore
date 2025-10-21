@@ -209,3 +209,32 @@ __marimo__/
 # Docker volumes
 weaviate_data/
 postgres_data/
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Frontend build outputs
+dist/
+dist-ssr/
+*.local
+
+# Frontend cache and temp files
+.vite/
+.cache/
+*.tsbuildinfo
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
