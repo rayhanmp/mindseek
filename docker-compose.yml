@@ -9,9 +9,11 @@ services:
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
-      DEFAULT_VECTORIZER_MODULE: 'none' 
+      ENABLE_MODULES: 'text2vec-openai'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-openai'
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       CLUSTER_HOSTNAME: 'weaviate'
+      OPENAI_APIKEY: ${OPENAI_API_KEY:-}
 
   postgres:
     image: postgres:16-alpine
