@@ -1,34 +1,32 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Chat from './Chat'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showChat, setShowChat] = useState(false)
+
+  if (showChat) {
+    return <Chat />
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+    <div className="min-h-screen flex flex-col bg-white text-black">
+      <header className="px-8 py-4 border-b border-gray-300">
+        <div className="text-xl font-medium">mindseek</div>
+      </header>
+
+      <main className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+        <h1 className="text-3xl font-medium mb-4">AI Diagnosis Assistant</h1>
+        <p className="text-base text-gray-600 mb-8">
+          DSM-5 trained AI for mental health diagnosis support.
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+        <button
+          onClick={() => setShowChat(true)}
+          className="px-8 py-3 text-base bg-black text-white border border-black hover:bg-gray-800 cursor-pointer"
+        >
+          Start
+        </button>
+      </main>
+    </div>
   )
 }
 
