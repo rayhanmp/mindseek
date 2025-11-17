@@ -14,31 +14,34 @@ client = weaviate.connect_to_local()
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=3072)
 store = WeaviateVectorStore(client=client, index_name="dsm5", text_key="text", embedding=embeddings)
 retriever = store.as_retriever()
-llm = ChatOpenAI(model="gpt-5-mini", temperature=0)
+llm = ChatOpenAI(model="gpt-5-nano", temperature=0)
 
 class State(TypedDict):
     question: str
     context: str
     answer: str
+    sources: list
 
 class RouteQuery(BaseModel):
     needs_retrieval: bool
 
 def route_question(state: State):
-    prompt = ChatPromptTemplate.from_template("Does this need DSM-5 lookup? {question}")
+    prompt = ChatPromptTemplate.from_template("Does this need DSM-5 lookup? {question} If the question is not related to mental health, such as banter, jokes, etc., return false.")
     result = (prompt | llm.with_structured_output(RouteQuery)).invoke(state)
     return "retrieve" if result.needs_retrieval else "direct_answer"
 
 def retrieve(state: State):
     docs = retriever.invoke(state["question"])
-    return {"context": "\n\n".join([doc.page_content for doc in docs])}
+    context = "\n\n".join([doc.page_content for doc in docs])
+    sources = [f"Page {doc.metadata.get('page_number', 'N/A')}" for doc in docs]
+    return {"context": context, "sources": sources}
 
 def generate_answer(state: State):
     if state.get("context"):
-        prompt = ChatPromptTemplate.from_template("Answer using context. Be concise.\n\nContext: {context}\nQuestion: {question}")
+        prompt = ChatPromptTemplate.from_template("Your name is mindseek, a helpful assistant for mental health. Answer using context. Be concise.  Do not add further follow up questions.\n\nContext: {context}\nQuestion: {question}")
         answer = (prompt | llm | StrOutputParser()).invoke({"context": state["context"], "question": state["question"]})
     else:
-        prompt = ChatPromptTemplate.from_template("Answer concisely.\n\nQuestion: {question}")
+        prompt = ChatPromptTemplate.from_template("Your name is mindseek, a helpful assistant for mental health. Answer concisely.\n\nQuestion: {question}")
         answer = (prompt | llm | StrOutputParser()).invoke({"question": state["question"]})
     return {"answer": answer}
 
@@ -52,6 +55,8 @@ workflow.add_edge("generate", END)
 graph = workflow.compile()
 
 if __name__ == "__main__":
-    result = graph.invoke({"question": "What is depressiondisorder and whats the code for it?"})
+    result = graph.invoke({"question": "Hi! How are you? What's your name?"})
     print(result["answer"])
-    client.close() 
+    if result.get("sources"):
+        print(f"\nSources: {', '.join(set(result['sources']))}")
+    client.close()
